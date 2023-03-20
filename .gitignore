@@ -1,0 +1,12 @@
+*.txt
+*.csv
+*.json
+*.xlsx
+secrets.sh
+__pycache__
+*.__pycache__
+*.db
+*.cfg
+webswebserver_config.py
+logs
+*.sh

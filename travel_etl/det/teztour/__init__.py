@@ -1,0 +1,1 @@
+from travel_etl.det.teztour.loader import load

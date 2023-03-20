@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "travel-etl"
+version = "0.1.0"
+description = ""
+authors = ["Ismail Gadzhiev <ismailgadzhievff@gmail.com>"]
+packages = [{include = "travel_etl"}]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+ydb = {extras = ["yc"], version = "^2.13.2"}
+apache-airflow = "2.1.1"
+protobuf = "3.20.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
