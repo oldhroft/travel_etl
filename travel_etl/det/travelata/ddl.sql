@@ -1,4 +1,5 @@
 CREATE TABLE `parser/det/travelata` (
+    title utf8,
     num_stars int,
     flag_less_places bool,
     location_name Utf8,
@@ -8,6 +9,7 @@ CREATE TABLE `parser/det/travelata` (
     orders_count int,
     oil_tax_value double,
     hotel_id int,
+    price double,
     num_people int,
     start_date date,
     end_date date,

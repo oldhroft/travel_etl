@@ -1,0 +1,1 @@
+from travel_etl.det.pivot.loader import load

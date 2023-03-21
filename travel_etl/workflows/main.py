@@ -8,6 +8,10 @@ import os
 import travel_etl.det.travelata as travelata
 import travel_etl.det.teztour as teztour
 
+import travel_etl.det.pivot as pivot
+import travel_etl.prod.offers as offers
+
+
 os.chdir(os.environ["AIRFLOW_HOME"])
 
 with DAG(
@@ -27,4 +31,14 @@ with DAG(
         dag=dag, 
     )
 
-    load_travelata_task >> load_teztour_task
+    load_pivot_task = PythonOperator(
+        task_id="etl_det_pivot", python_callable=pivot.load,
+        dag=dag, 
+    )
+
+    load_offers_task = PythonOperator(
+        task_id="etl_prod_offers", python_callable=offers.load,
+        dag=dag, 
+    )
+
+    load_travelata_task >> load_teztour_task >> load_pivot_task >> load_offers_task

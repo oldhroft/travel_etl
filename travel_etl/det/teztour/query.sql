@@ -1,3 +1,5 @@
+-- TODO: add city_name and location_name to output
+
 $match_stars = Re2::Match('^star_\\d+');
 $capture_stars = Re2::Capture('^star_(\\d+)');
 $capture_info = Re2::Capture('^на (\\d+) ноч\\p{Cyrillic}{1,2} до (\\d+)\\.(\\d+)');
@@ -95,7 +97,7 @@ FROM $data
 
 REPLACE INTO `parser/det/teztour`
 SELECT hotel_id,
-    hotel_rating,
+    hotel_rating as rating,
     currency_code,
     latitude,
     longitude,
@@ -110,6 +112,7 @@ SELECT hotel_id,
     price_dollars,
     price_euros,
     cast(location_name as utf8) as location_name,
+    cast(city_name as utf8) as city_name,
     beach_line,
     is_free_internet,
     case when airport_captured._2 = "км" 

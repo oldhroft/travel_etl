@@ -16,6 +16,7 @@ $beach_match_capture = Re2::Capture('^(\\d+\\.?\\d*) (\\p{Cyrillic}{1,2}) до �
 
 $hotel_id_capture = Re2::Capture('/hotel/(\\d+)/');
 
+
 $contains_line = ($y) -> {
     RETURN String::Contains($y, 'линия') and not String::Contains($y, '?')
 };
@@ -48,6 +49,9 @@ $contains_condi = ($y) -> {
 $contains_cond_unkn = ($y) -> {
     RETURN String::Contains($y, 'конди') and not String::Contains($y, '?')
 };
+
+$capture_price = Re2::Capture('от ([\\d\\s]+) руб\\.');
+
 
 $data = (
 SELECT title,
@@ -82,11 +86,14 @@ SELECT title,
         String::ReplaceAll(
         ($capture_oil_tax(oil_tax))._1, ' ', '') as double) as oil_tax_value,
     cast($hotel_id_capture(href)._1 as int) as hotel_id,
+    cast(String::ReplaceAll(
+        $capture_price(price)._1, ' ', '') as double) as price,
     CurrentUtcDatetime() as created_dttm_utc
 FROM `parser/raw/travelata`);
 
 $data_prep = (
 SELECT
+    title,
     num_stars,
     flag_less_places,
     location_name,
@@ -96,6 +103,7 @@ SELECT
     orders_count,
     oil_tax_value,
     hotel_id,
+    price,
     cast(criteria_parsed._1 as int) as num_people,
     cast(criteria_parsed._2 as int) as from_date_num,
     
@@ -148,6 +156,7 @@ FROM $data);
 
 REPLACE INTO `parser/det/travelata`
 SELECT
+    title,
     num_stars,
     flag_less_places,
     location_name,
@@ -157,6 +166,7 @@ SELECT
     orders_count,
     oil_tax_value,
     hotel_id,
+    price,
     num_people,
     cast(ListConcat(
         AsList(cast(year_created as string), 

@@ -10,7 +10,7 @@ def create_execute_query(query: str) -> Callable:
         session.transaction().execute(
             query,
             commit_tx=True,
-            settings=ydb.BaseRequestSettings().with_timeout(10).with_operation_timeout(8)
+            settings=ydb.BaseRequestSettings().with_timeout(20).with_operation_timeout(19)
         )
     return _execute_query
 
