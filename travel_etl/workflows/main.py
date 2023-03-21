@@ -17,7 +17,7 @@ os.chdir(os.environ["AIRFLOW_HOME"])
 with DAG(
     dag_id="main_etl",
     catchup=False,
-    schedule_interval=None,
+    schedule_interval="0 * * * *",
     start_date=datetime.datetime(1970, 1, 1),
 ) as dag:
     

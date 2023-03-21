@@ -1,7 +1,5 @@
 DELETE FROM `parser/prod/offers` 
-WHERE
-    row_extracted_dttm_utc >= CurrentUtcDatetime() - DateTime::IntervalFromDays(2)
-    and start_date >= CurrentUtcDate();
+WHERE 1=1;
 
 $data = (
 SELECT p.*,
