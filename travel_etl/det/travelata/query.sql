@@ -89,7 +89,8 @@ SELECT title,
     cast(String::ReplaceAll(
         $capture_price(price)._1, ' ', '') as double) as price,
     CurrentUtcDatetime() as created_dttm_utc
-FROM `parser/raw/travelata`);
+FROM `%(source)s`
+WHERE created_dttm >= CurrentUtcDatetime()  - DateTime::IntervalFromHours(%(hours)s));
 
 $data_prep = (
 SELECT
@@ -154,7 +155,7 @@ SELECT
     created_dttm_utc
 FROM $data);
 
-REPLACE INTO `parser/det/travelata`
+REPLACE INTO `%(target)s`
 SELECT
     title,
     num_stars,
@@ -214,5 +215,4 @@ SELECT
     row_id,
     row_extracted_dttm_utc,
     created_dttm_utc
-FROM $data_prep
-WHERE row_extracted_dttm_utc >= CurrentUtcDatetime() - DateTime::IntervalFromDays(1);
+FROM $data_prep;

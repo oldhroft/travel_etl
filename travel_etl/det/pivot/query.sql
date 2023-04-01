@@ -1,5 +1,6 @@
 $data = (
 SELECT
+    title,
     hotel_id,
     country_name,
     city_name,
@@ -22,10 +23,11 @@ SELECT
     row_id,
     row_extracted_dttm_utc,
     created_dttm_utc
-FROM `parser/det/teztour`
-WHERE row_extracted_dttm_utc >= CurrentUtcDatetime() - DateTime::IntervalFromDays(2)
+FROM`%(source_teztour)s`
+WHERE row_extracted_dttm_utc >= CurrentUtcDatetime() - DateTime::IntervalFromHours(%(hours)s)
 UNION ALL
 SELECT
+    title,
     hotel_id,
     country_name,
     location_name as city_name,
@@ -48,10 +50,10 @@ SELECT
     row_id,
     row_extracted_dttm_utc,
     created_dttm_utc
-FROM `parser/det/travelata`
-WHERE row_extracted_dttm_utc >= CurrentUtcDatetime() - DateTime::IntervalFromDays(2)
+FROM `%(source_travelata)s`
+WHERE row_extracted_dttm_utc >= CurrentUtcDatetime() - DateTime::IntervalFromHours(%(hours)s)
 );
 
-REPLACE INTO `parser/det/pivot` 
+REPLACE INTO `%(target)s`
 SELECT *
 FROM $data;

@@ -1,18 +1,6 @@
-DELETE FROM `parser/prod/offers` 
-WHERE 1=1;
-
-$data = (
-SELECT p.*,
-    row_number() over (
-        partition by website, hotel_id, start_date, end_date
-        order by row_extracted_dttm_utc desc
-    ) as rn
-FROM `parser/det/pivot` p
-WHERE  row_extracted_dttm_utc >= CurrentUtcDatetime() - DateTime::IntervalFromDays(4)
-    and start_date >= CurrentUtcDate());
-
-REPLACE INTO `parser/prod/offers`  
+REPLACE INTO `%(target)s`
 SELECT hotel_id,
+    title,
     country_name,
     city_name,
     price,
@@ -34,5 +22,7 @@ SELECT hotel_id,
     row_id,
     row_extracted_dttm_utc,
     created_dttm_utc
-FROM $data
-WHERE rn = 1;
+FROM `%(source)s`
+WHERE  row_extracted_dttm_utc >= CurrentUtcDatetime()  - DateTime::IntervalFromHours(%(hours)s)
+    and hotel_id is not null
+    and start_date >= CurrentUtcDate();

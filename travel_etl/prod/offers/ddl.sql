@@ -1,5 +1,6 @@
 CREATE TABLE `parser/prod/offers` (
     hotel_id int,
+    title utf8,
     country_name utf8,
     city_name utf8,
     price double,
@@ -21,5 +22,6 @@ CREATE TABLE `parser/prod/offers` (
     row_id utf8,
     row_extracted_dttm_utc datetime,
     created_dttm_utc datetime,
-    PRIMARY KEY (parsing_id, row_id, row_extracted_dttm_utc) 
+    PRIMARY KEY (website, hotel_id, start_date, end_date),
+    INDEX row_tm GLOBAL ASYNC ON (row_extracted_dttm_utc)
 );

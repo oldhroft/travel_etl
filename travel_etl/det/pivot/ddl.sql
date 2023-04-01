@@ -1,4 +1,5 @@
 CREATE TABLE `parser/det/pivot` (
+    title utf8,
     hotel_id int,
     country_name utf8,
     city_name utf8,
@@ -21,5 +22,5 @@ CREATE TABLE `parser/det/pivot` (
     row_id utf8,
     row_extracted_dttm_utc datetime,
     created_dttm_utc datetime,
-    PRIMARY KEY (parsing_id, row_id, row_extracted_dttm_utc) 
+    PRIMARY KEY (parsing_id, row_extracted_dttm_utc, row_id) 
 );

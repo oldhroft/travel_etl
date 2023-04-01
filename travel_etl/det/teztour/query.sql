@@ -1,5 +1,3 @@
--- TODO: add city_name and location_name to output
-
 $match_stars = Re2::Match('^star_\\d+');
 $capture_stars = Re2::Capture('^star_(\\d+)');
 $capture_info = Re2::Capture('^на (\\d+) ноч\\p{Cyrillic}{1,2} до (\\d+)\\.(\\d+)');
@@ -49,8 +47,8 @@ SELECT
     row_id,
     created_dttm as row_extracted_dttm_utc,
     CurrentUtcDatetime() as created_dttm_utc
-FROM `parser/raw/teztour`
-WHERE created_dttm >= CurrentUtcDatetime() - DateTime::IntervalFromDays(1)
+FROM `%(source)s`
+WHERE created_dttm >= CurrentUtcDatetime() - DateTime::IntervalFromHours(%(hours)s)
 );
 
 $data_proc = (
@@ -95,7 +93,7 @@ SELECT hotel_id,
 FROM $data
 );
 
-REPLACE INTO `parser/det/teztour`
+REPLACE INTO `%(target)s`
 SELECT hotel_id,
     hotel_rating as rating,
     currency_code,

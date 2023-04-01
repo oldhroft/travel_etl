@@ -32,5 +32,5 @@ CREATE TABLE `parser/det/travelata` (
     row_id Utf8,
     row_extracted_dttm_utc datetime,
     created_dttm_utc datetime,
-    PRIMARY KEY (parsing_id, row_id, row_extracted_dttm_utc) 
+    PRIMARY KEY (parsing_id, row_extracted_dttm_utc, row_id) 
 );
