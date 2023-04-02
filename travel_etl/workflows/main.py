@@ -7,7 +7,6 @@ import os
 
 import travel_etl.det.travelata as travelata
 import travel_etl.det.teztour as teztour
-
 import travel_etl.det.pivot as pivot
 import travel_etl.prod.offers as offers
 
@@ -15,41 +14,45 @@ import travel_etl.prod.offers as offers
 os.chdir(os.environ["AIRFLOW_HOME"])
 
 with DAG(
-    dag_id="main_etl",
+    dag_id="etl_create_det_offers",
     catchup=False,
     schedule_interval="0 * * * *",
-    start_date=datetime.datetime(1970, 1, 1),
+    start_date=datetime.datetime(2023, 3, 1),
 ) as dag:
+    
+    base_dir = "parser"
+    det_travelata = travelata.DetTravelata(base_dir)
+    det_teztour = teztour.DetTeztour(base_dir)
+    det_pivot = pivot.DetPivot(base_dir)
+    prod_offers = offers.ProdOffers(base_dir)
+
     load_travelata_task = PythonOperator(
         task_id="etl_det_travelata",
-        python_callable=travelata.load,
+        python_callable=det_travelata.load_table,
         dag=dag,
         op_kwargs={
             "source": "parser/raw/travelata",
-            "target": "parser/det/travelata",
             "hours": "6",
         },
     )
 
     load_teztour_task = PythonOperator(
         task_id="etl_det_teztour",
-        python_callable=teztour.load,
+        python_callable=det_teztour.load_table,
         dag=dag,
         op_kwargs={
             "source": "parser/raw/teztour",
-            "target": "parser/det/teztour",
             "hours": "6",
         },
     )
 
     load_pivot_task = PythonOperator(
         task_id="etl_det_pivot",
-        python_callable=pivot.load,
+        python_callable=det_pivot.load_table,
         dag=dag,
         op_kwargs={
-            "source_teztour": "parser/det/teztour",
-            "source_travelata": "parser/det/travelata",
-            "target": "parser/det/pivot",
+            "source_teztour": det_teztour,
+            "source_travelata": det_travelata,
             "hours": "6",
         },
     )
@@ -58,8 +61,7 @@ with DAG(
         task_id="etl_prod_offers",
         python_callable=offers.load,
         op_kwargs={
-            "source": "parser/det/pivot",
-            "target": "parser/prod/offers",
+            "source": det_pivot,
             "hours": "6",
             "days_offer": "4",
         },

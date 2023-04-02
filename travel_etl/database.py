@@ -1,0 +1,15 @@
+from travel_etl.det.pivot import DetPivot
+from travel_etl.det.travelata import DetTravelata
+from travel_etl.det.teztour import DetTeztour
+from travel_etl.prod.offers import ProdOffers
+
+def create_database(base_dir: str) -> None:
+
+    tables = []
+    tables.append(DetTravelata(base_dir))
+    tables.append(DetTeztour(base_dir))
+    tables.append(DetPivot(base_dir))
+    tables.append(ProdOffers(base_dir))
+    for table in tables:
+        table.create_table()
+

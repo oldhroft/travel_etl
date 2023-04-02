@@ -1,1 +1,1 @@
-from travel_etl.prod.offers.loader import load
+from travel_etl.prod.offers.loader import ProdOffers
