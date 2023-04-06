@@ -2,6 +2,7 @@ import datetime
 
 from airflow import DAG
 from airflow.operators.python import PythonOperator
+from airflow.operators.bash import BashOperator
 
 import os
 
@@ -25,6 +26,12 @@ with DAG(
     det_teztour = teztour.DetTeztour(DIRECTORY)
     det_pivot = pivot.DetPivot(DIRECTORY)
     prod_offers = offers.ProdOffers(DIRECTORY)
+
+    task_start = BashOperator(
+        task_id='start_task',
+        bash_command='date',
+        dag=dag
+    )
 
     load_travelata_task = PythonOperator(
         task_id="etl_det_travelata",
@@ -65,6 +72,9 @@ with DAG(
             "hours": "6",
             "days_offer": "4",
         },
+        dag=dag
     )
 
-    [load_travelata_task, load_teztour_task] >> load_pivot_task >> load_offers_task
+    comb = task_start >> [load_travelata_task, load_teztour_task] >> load_pivot_task 
+    
+    comb >> load_offers_task
