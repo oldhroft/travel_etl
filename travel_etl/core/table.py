@@ -70,13 +70,34 @@ class YDBField(Field):
         self.column = ydb.Column(name, type=base_type)
 
 
-from typing import List
+class YDBIndex:
+    def __init__(self, name, columns):
+        self.index = ydb.TableIndex(name).with_index_columns(*columns)
 
 
-def create_table_description_ydb(fields: List[YDBField], primary_keys: list):
+from typing import List, Optional
+
+
+def create_table_description_ydb(
+    fields: List[YDBField],
+    primary_keys: list,
+    indexes: List[YDBIndex],
+    ttl_settings: Optional[tuple],
+):
     builder = ydb.TableDescription()
     builder = builder.with_columns(*[field.column for field in fields])
     builder.with_primary_keys(*primary_keys)
+    builder.with_indexes(*[index.index for index in indexes])
+
+    if ttl_settings is not None:
+        # This is untested
+        column, ttl = ttl_settings
+        builder = builder.with_ttl(
+            ydb.TtlSettings().with_date_type_column(
+                column_name=column, expire_after_seconds=ttl
+            )
+        )
+
     return builder
 
 
@@ -84,6 +105,10 @@ class YDBTable(Table):
     pool_cls = YDBPool
     fields = []
     primary_keys = []
+    indexes = []
+    ttl_settings = None
 
     def create_table_description(self):
-        self.description = create_table_description_ydb(self.fields, self.primary_keys)
+        self.description = create_table_description_ydb(
+            self.fields, self.primary_keys, self.indexes, ttl_settings=self.ttl_settings
+        )

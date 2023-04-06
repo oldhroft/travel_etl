@@ -114,5 +114,14 @@ def test_table_description():
     keys = [
         "id"
     ]
-    desc = create_table_description_ydb(fields, keys)
+    indexes = []
+    desc = create_table_description_ydb(fields, keys, indexes)
     assert isinstance(desc, ydb.TableDescription)
+
+from travel_etl.core.table import YDBIndex
+
+def test_index():
+    name = "index"
+    columns = ["col1"]
+    index = YDBIndex(name, columns)
+    assert isinstance(index.index, ydb.TableIndex)

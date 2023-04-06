@@ -13,18 +13,18 @@ import travel_etl.prod.offers as offers
 
 os.chdir(os.environ["AIRFLOW_HOME"])
 
+DIRECTORY = "parser"
+
 with DAG(
     dag_id="etl_create_det_offers",
     catchup=False,
     schedule_interval="0 * * * *",
     start_date=datetime.datetime(2023, 3, 1),
 ) as dag:
-    
-    base_dir = "parser"
-    det_travelata = travelata.DetTravelata(base_dir)
-    det_teztour = teztour.DetTeztour(base_dir)
-    det_pivot = pivot.DetPivot(base_dir)
-    prod_offers = offers.ProdOffers(base_dir)
+    det_travelata = travelata.DetTravelata(DIRECTORY)
+    det_teztour = teztour.DetTeztour(DIRECTORY)
+    det_pivot = pivot.DetPivot(DIRECTORY)
+    prod_offers = offers.ProdOffers(DIRECTORY)
 
     load_travelata_task = PythonOperator(
         task_id="etl_det_travelata",
@@ -67,4 +67,4 @@ with DAG(
         },
     )
 
-    load_travelata_task >> load_teztour_task >> load_pivot_task >> load_offers_task
+    [load_travelata_task, load_teztour_task] >> load_pivot_task >> load_offers_task

@@ -1,5 +1,5 @@
-from travel_etl.det.pivot import DetPivot
+from travel_etl.prod.offers import ProdOffers
 
 if __name__ == "__main__":
-    table = DetPivot("test", "test_table")
+    table = ProdOffers("test")
     table.create_table()
