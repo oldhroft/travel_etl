@@ -1,0 +1,1 @@
+query1 %(source)s %(target)s

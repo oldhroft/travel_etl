@@ -1,22 +1,37 @@
-import os
-from travel_etl.utils import execute_query, initialize_pool
-
-import logging
+from travel_etl.core.table import YDBTable
+from travel_etl.core.table import YDBField as Field
 
 
-def load(hours, source_teztour, source_travelata, target):
-    fname = os.path.join(os.path.dirname(__file__), "query.sql")
+class DetPivot(YDBTable):
+    queries = [
+        "query.sql",
+    ]
 
-    with open(fname, "r", encoding="utf-8") as file:
-        query = file.read()
+    params = ["hours", "source_teztour", "source_travelata"]
 
-    query_fmt = query % dict(
-        hours=hours,
-        source_teztour=source_teztour,
-        source_travelata=source_travelata,
-        target=target,
-    )
-
-    logging.info(f"Executing query:\n{query_fmt}")
-    session = initialize_pool()
-    execute_query(session, query_fmt)
+    fields = [
+        Field("title", "Utf8"),
+        Field("hotel_id", "Int64"),
+        Field("country_name", "Utf8"),
+        Field("city_name", "Utf8"),
+        Field("price", "Double"),
+        Field("airport_distance", "Double"),
+        Field("sand_beach_flg", "Bool"),
+        Field("start_date", "Date"),
+        Field("end_date", "Date"),
+        Field("rating", "Double"),
+        Field("num_nights", "Double"),
+        Field("is_flight_included", "Bool"),
+        Field("beach_line", "Int64"),
+        Field("num_stars", "Double"),
+        Field("link", "Utf8"),
+        Field("website", "Utf8"),
+        Field("offer_hash", "Utf8"),
+        Field("key", "Utf8"),
+        Field("bucket", "Utf8"),
+        Field("parsing_id", "Utf8"),
+        Field("row_id", "Utf8"),
+        Field("row_extracted_dttm_utc", "Datetime"),
+        Field("created_dttm_utc", "Datetime"),
+    ]
+    primary_keys = ["parsing_id", "row_extracted_dttm_utc", "row_id"]

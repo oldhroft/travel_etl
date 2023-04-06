@@ -1,1 +1,1 @@
-from travel_etl.det.travelata.loader import load
+from travel_etl.det.travelata.loader import DetTravelata
