@@ -53,6 +53,8 @@ class BasePool:
 
     def path_exists(self, path):
         return False
+    
+    def ddl(self, description, table_name):...
 
 
 class YDBPool(BasePool):
@@ -64,10 +66,19 @@ class YDBPool(BasePool):
     def execute(self, query):
         execute_query(self.session, query)
 
-    def ddl(self, query):
-        self.table_session.transaction().execute(query)
+    def drop_table(self, table_name):
+        self.table_session.drop_table(os.path.join(os.environ["YDB_DATABASE"], table_name))
 
-    def paths_exists(self, path):
+    def ddl(self, description, table_name, drop_if_exists=True):
+        if drop_if_exists and self.path_exists(table_name):
+            self.drop_table(table_name)
+
+        self.table_session.create_table(
+            os.path.join(os.environ["YDB_DATABASE"], table_name),
+            description
+        )
+
+    def path_exists(self, path):
         try:
             full_path = os.path.join(os.environ["YDB_DATABASE"], path)
             self.driver.scheme_client.describe_path(full_path)

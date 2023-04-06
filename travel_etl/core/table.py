@@ -4,23 +4,27 @@ from travel_etl.core.utils import BasePool, YDBPool
 import logging
 
 import importlib
+import ydb
 
 
 class Table:
     queries = []
     params = []
     pool_cls = BasePool
+    fields = []
 
-    drop_query = "DROP TABLE {table_name}s"
+    def create_table_description(self):
+        self.description = None
 
     def __init__(
         self,
         directory_name,
         name=None,
     ):
+        self.create_table_description()
         m = importlib.import_module(self.__module__)
         self.fpath = os.path.dirname(m.__file__)
-        module_name = m.__name__.split(".")[1: -1]
+        module_name = m.__name__.split(".")[1:-1]
         if name is None:
             self.table_name = "/".join([directory_name] + module_name)
         else:
@@ -31,18 +35,7 @@ class Table:
 
     def create_table(self):
         session = self.pool_cls()
-
-        if session.path_exists(self.table_name):
-            query = self.drop_query.format(table_name=self.table_name)
-            session.ddl(query)
-
-        query_path = os.path.join(self.fpath, "ddl.sql")
-        with open(query_path, "r", encoding="utf-8") as file:
-            query_text = file.read()
-    
-        query_fmt = query_text % {"table": self.table_name}
-        logging.info(f"Executing query {query_fmt}")
-        session.ddl(query_fmt)
+        session.ddl(self.description, self.table_name)
 
     def load_table(self, **kwargs):
         for param in self.params:
@@ -60,5 +53,37 @@ class Table:
             session.execute(query_fmt)
 
 
+class Field:
+    def __init__(self, name, type, nullable=True):
+        self.name = name
+        self.type = type
+        self.nullable = nullable
+
+
+class YDBField(Field):
+    def __init__(self, name, type, nullable=True):
+        super().__init__(name, type, nullable)
+        base_type = getattr(ydb.PrimitiveType, type)
+        if nullable:
+            base_type = ydb.OptionalType(base_type)
+
+        self.column = ydb.Column(name, type=base_type)
+
+
+from typing import List
+
+
+def create_table_description_ydb(fields: List[YDBField], primary_keys: list):
+    builder = ydb.TableDescription()
+    builder = builder.with_columns(*[field.column for field in fields])
+    builder.with_primary_keys(*primary_keys)
+    return builder
+
+
 class YDBTable(Table):
     pool_cls = YDBPool
+    fields = []
+    primary_keys = []
+
+    def create_table_description(self):
+        self.description = create_table_description_ydb(self.fields, self.primary_keys)

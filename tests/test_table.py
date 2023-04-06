@@ -93,19 +93,26 @@ def test_params_check():
     with pytest.raises(ValueError):
         table.load_table()
 
-# def test_ddl():
-#     queries_hist = []
-#     class MockPool(BasePool):
-#         def __init__(self) -> None:
-#             super().__init__()
+from travel_etl.core.table import Field, YDBField, create_table_description_ydb
+import ydb
 
-#         def execute(self, query):
-#             queries_hist.append(query)
-    
-#     class NewTable(Table):
-#         pool_cls = MockPool
-        
-#     table = NewTable("dir")
-#     table.create_table()
+def test_field():
+    field = Field(name="name", type="Int64")
+    assert field.nullable
 
-#     assert "info" in queries_hist
+def test_ydb_field():
+    field = YDBField(name="name", type="Int64")
+    assert field.nullable
+
+    assert isinstance(field.column, ydb.Column)
+
+def test_table_description():
+    fields = [
+        YDBField(name="name", type="Int64"),
+        YDBField(name="id", type="Int64"),
+    ]
+    keys = [
+        "id"
+    ]
+    desc = create_table_description_ydb(fields, keys)
+    assert isinstance(desc, ydb.TableDescription)

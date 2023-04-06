@@ -1,7 +1,5 @@
-from travel_etl.core.table import YDBTable
-import ydb
+from travel_etl.det.pivot import DetPivot
 
 if __name__ == "__main__":
-
-    table = YDBTable("test")
+    table = DetPivot("test", "test_table")
     table.create_table()
