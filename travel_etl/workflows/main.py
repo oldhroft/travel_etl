@@ -59,7 +59,7 @@ with DAG(
 
     load_offers_task = PythonOperator(
         task_id="etl_prod_offers",
-        python_callable=offers.load,
+        python_callable=prod_offers.load_table,
         op_kwargs={
             "source": det_pivot,
             "hours": "6",

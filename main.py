@@ -1,6 +1,7 @@
-from travel_etl.core.table import Table
+from travel_etl.core.table import YDBTable
+import ydb
 
 if __name__ == "__main__":
-    
-    table = Table("parser")
-    print("target={target}".format(target=table))
+
+    table = YDBTable("test")
+    table.create_table()

@@ -2,7 +2,7 @@ from travel_etl.core.table import YDBTable
 
 class DetPivot(YDBTable):
     queries = [
-        "prepare.sql", "query.sql"
+        "query.sql",
     ]
 
     params = [

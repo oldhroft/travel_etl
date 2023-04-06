@@ -23,7 +23,7 @@ def execute_query(session: ydb.SessionPool, query: str) -> None:
     session.retry_operation_sync(create_execute_query(query))
 
 
-def initialize_pool() -> ydb.Driver:
+def initialize_driver() -> ydb.Driver:
     driver_config = ydb.DriverConfig(
         os.environ["YDB_ENDPOINT"],
         os.environ["YDB_DATABASE"],
@@ -36,8 +36,8 @@ def initialize_pool() -> ydb.Driver:
 
     try:
         driver.wait(timeout=10)
-        pool = ydb.SessionPool(driver)
-        return pool
+
+        return driver
     except TimeoutError:
         print("Connect failed to YDB")
         print("Last reported errors by discovery:")
@@ -49,10 +49,29 @@ class BasePool:
     def __init__(self) -> None:
         pass
 
+    def execute(self, query):...
+
+    def path_exists(self, path):
+        return False
+
 
 class YDBPool(BasePool):
     def __init__(self) -> None:
-        self.session = initialize_pool()
+        self.driver = initialize_driver()
+        self.session = ydb.SessionPool(self.driver)
+        self.table_session = self.driver.table_client.session().create()
 
     def execute(self, query):
-        execute_query(self, query)
+        execute_query(self.session, query)
+
+    def ddl(self, query):
+        self.table_session.transaction().execute(query)
+
+    def paths_exists(self, path):
+        try:
+            full_path = os.path.join(os.environ["YDB_DATABASE"], path)
+            self.driver.scheme_client.describe_path(full_path)
+            return True
+        except ydb.SchemeError as e:
+            return False
+        
