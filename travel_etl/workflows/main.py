@@ -15,6 +15,7 @@ import travel_etl.prod.offers as offers
 os.chdir(os.environ["AIRFLOW_HOME"])
 
 DIRECTORY = "parser"
+HOURS = str(12)
 
 with DAG(
     dag_id="etl_create_det_offers",
@@ -39,7 +40,7 @@ with DAG(
         dag=dag,
         op_kwargs={
             "source": "parser/raw/travelata",
-            "hours": "6",
+            "hours": HOURS,
         },
     )
 
@@ -49,7 +50,7 @@ with DAG(
         dag=dag,
         op_kwargs={
             "source": "parser/raw/teztour",
-            "hours": "6",
+            "hours": HOURS,
         },
     )
 
@@ -60,7 +61,7 @@ with DAG(
         op_kwargs={
             "source_teztour": det_teztour,
             "source_travelata": det_travelata,
-            "hours": "6",
+            "hours": HOURS,
         },
     )
 
@@ -69,7 +70,7 @@ with DAG(
         python_callable=prod_offers.load_table,
         op_kwargs={
             "source": det_pivot,
-            "hours": "6",
+            "hours": HOURS,
             "days_offer": "4",
         },
         dag=dag
