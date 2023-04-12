@@ -2,7 +2,7 @@ $match_stars = Re2::Match('^star_\\d+');
 $capture_stars = Re2::Capture('^star_(\\d+)');
 $capture_info = Re2::Capture('^на (\\d+) ноч\\p{Cyrillic}{1,2} до (\\d+)\\.(\\d+)');
 $price_currency = Re2::Capture("^Эквивалент цены в валюте: (\\d+) \\$ \\| (\\d+) €");
-$capture_city = Re2::Capture('^(.+)( \\- город)?');
+$capture_city = Re2::Replace('( \\- .+)$');
 $contains_line = Re2::Match('^Линия от моря\\: \\d+\\-я');
 $contains_line_capture = Re2::Capture('^Линия от моря\\: (\\d+)\\-я');
 $airport_match = Re2::Match('^До аэропорта: \\d+\\.?\\d* \\p{Cyrillic}{1,2}\\.');
@@ -67,7 +67,7 @@ SELECT hotel_id,
     title,
     cast(price_box_capture._1 as double) as price_dollars,
     cast(price_box_capture._2 as double) as price_euros,
-    $capture_city(ListHead(location_list))._1 as city_name,
+    $capture_city(ListHead(location_list), '') as city_name,
     case when ListLength(location_list) == 2 then ListLast(location_list)
         else null end  as location_name,
     cast($contains_line_capture(
@@ -101,7 +101,7 @@ SELECT hotel_id,
     longitude,
     price,
     num_stars,
-    cast(country_name as utf8) as country_name,
+    cast(String::Strip(country_name) as utf8) as country_name,
     is_flight_included,
     cast(room_type as utf8) as room_type,
     cast(mealplan as utf8) as mealplan,
@@ -109,8 +109,8 @@ SELECT hotel_id,
     cast(title as utf8) as title,
     price_dollars,
     price_euros,
-    cast(location_name as utf8) as location_name,
-    cast(city_name as utf8) as city_name,
+    cast(String::Strip(location_name) as utf8) as location_name,
+    cast(String::Strip(city_name) as utf8) as city_name,
     beach_line,
     is_free_internet,
     case when airport_captured._2 = "км" 
