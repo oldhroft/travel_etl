@@ -6,22 +6,12 @@ import logging
 import importlib
 import ydb
 
-
-class Table:
-    queries = []
-    params = []
-    pool_cls = BasePool
-    fields = []
-
-    def create_table_description(self):
-        self.description = None
-
+class DataObject:
     def __init__(
         self,
         directory_name,
         name=None,
     ):
-        self.create_table_description()
         m = importlib.import_module(self.__module__)
         self.fpath = os.path.dirname(m.__file__)
         module_name = m.__name__.split(".")[1:-1]
@@ -31,7 +21,21 @@ class Table:
             self.table_name = "/".join([directory_name, name])
 
     def __str__(self) -> str:
-        return self.table_name
+        return self.table_name 
+
+
+class Table(DataObject):
+    queries = []
+    params = []
+    pool_cls = BasePool
+    fields = []
+
+    def create_table_description(self):
+        self.description = None
+
+    def __init__(self, directory_name, name=None):
+        super().__init__(directory_name, name)
+        self.create_table_description()
 
     def create_table(self):
         session = self.pool_cls()
@@ -112,3 +116,21 @@ class YDBTable(Table):
         self.description = create_table_description_ydb(
             self.fields, self.primary_keys, self.indexes, ttl_settings=self.ttl_settings
         )
+
+class S3Object(DataObject):
+    pool_cls = BasePool
+    params = []
+    query = None
+
+    def load(self, **kwargs):
+        for param in self.params:
+            if param not in kwargs:
+                raise ValueError(f"Missing param {param} for load")
+
+        session = self.pool_cls()
+        query_path = os.path.join(self.fpath, self.query)
+        with open(query_path, "r", encoding="utf-8") as file:
+            query_text = file.read()
+        query_fmt = query_text % {"target": self.table_name, **kwargs}
+        logging.info(f"Executing query {query_fmt}")
+        self.data = session.execute(query_fmt)
