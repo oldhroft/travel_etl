@@ -82,7 +82,7 @@ def etl_prod_offers(hours, directory, days_offer):
 
     prod_offers.load_table(**cfg)
 
-@task.external_python(task_id="etl_prod_offers", python=PATH_TO_PYTHON)
+@task.external_python(task_id="etl_prod_options", python=PATH_TO_PYTHON)
 def etl_prod_options(directory, Bucket):
     import travel_etl.prod.offers as offers
     import travel_etl.prod.options as options
