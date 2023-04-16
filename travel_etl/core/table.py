@@ -1,6 +1,6 @@
 import os
 
-from travel_etl.core.utils import BasePool, YDBPool
+from travel_etl.core.utils import BasePool, YDBPool, S3Client
 import logging
 
 import importlib
@@ -117,20 +117,45 @@ class YDBTable(Table):
             self.fields, self.primary_keys, self.indexes, ttl_settings=self.ttl_settings
         )
 
-class S3Object(DataObject):
+class S3Json(DataObject):
     pool_cls = BasePool
+
+    s3_session = S3Client
+
     params = []
-    query = None
+    queries = []
+
+    def __init__(self, directory_name, Bucket, name=None):
+        super().__init__(directory_name, name)
+        self.Bucket = Bucket
+        self.table_name = self.table_name + ".json"
+
+    def transform(self):
+        self.result = []
 
     def load(self, **kwargs):
         for param in self.params:
             if param not in kwargs:
-                raise ValueError(f"Missing param {param} for load")
+                raise ValueError(f"Missing param {param} for load_table")
 
         session = self.pool_cls()
-        query_path = os.path.join(self.fpath, self.query)
-        with open(query_path, "r", encoding="utf-8") as file:
-            query_text = file.read()
-        query_fmt = query_text % {"target": self.table_name, **kwargs}
-        logging.info(f"Executing query {query_fmt}")
-        self.data = session.execute(query_fmt)
+
+        self.data = []
+
+        for query in self.queries:
+            query_path = os.path.join(self.fpath, query)
+            with open(query_path, "r", encoding="utf-8") as file:
+                query_text = file.read()
+            query_fmt = query_text % {"target": self.table_name, **kwargs}
+            logging.info(f"Executing query {query_fmt}")
+            res = session.execute_load(query_fmt)
+            self.data.append(res)
+        
+        self.transform()
+        s3 = self.s3_session()
+
+        s3.load_to_s3(self.result, Key=self.table_name, Bucket=self.Bucket)
+
+
+class S3JsonFromYDB(S3Json):
+    pool_cls = YDBPool

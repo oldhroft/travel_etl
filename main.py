@@ -1,5 +1,5 @@
-from travel_etl.prod.offers import ProdOffers
+from travel_etl.prod.options import ProdOptions
 
 if __name__ == "__main__":
-    table = ProdOffers("test")
-    table.create_table()
+    prod_options = ProdOptions("test", "parsing")
+    prod_options.load()

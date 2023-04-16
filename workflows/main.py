@@ -21,11 +21,10 @@ PATH_TO_PYTHON = CONFIG["system"]["path_to_python"]
 HOURS = CONFIG["HOURS"]
 DAYS_OFFER = CONFIG["DAYS_OFFER"]
 DIRECTORY = CONFIG["DIRECTORY"]
+BUCKET = CONFIG["BUCKET"]
 
 @task.external_python(task_id="etl_det_travelata", python=PATH_TO_PYTHON)
 def etl_det_travelata(hours, directory):
-    # HOURS = "12"
-    # DIRECTORY = "parser"
     import travel_etl.det.travelata as travelata
     cfg = {
         "source": "parser/raw/travelata",
@@ -37,8 +36,6 @@ def etl_det_travelata(hours, directory):
 
 @task.external_python(task_id="etl_det_teztour", python=PATH_TO_PYTHON)
 def etl_det_teztour(hours, directory):
-    # HOURS = "12"
-    # DIRECTORY = "parser"
     import travel_etl.det.teztour as teztour
 
     cfg = {
@@ -51,8 +48,6 @@ def etl_det_teztour(hours, directory):
 
 @task.external_python(task_id="etl_det_pivot", python=PATH_TO_PYTHON)
 def etl_det_pivot(hours, directory):
-    # HOURS = "12"
-    # DIRECTORY = "parser"
 
     import travel_etl.det.teztour as teztour
     import travel_etl.det.travelata as travelata
@@ -72,8 +67,7 @@ def etl_det_pivot(hours, directory):
 
 @task.external_python(task_id="etl_prod_offers", python=PATH_TO_PYTHON)
 def etl_prod_offers(hours, directory, days_offer):
-    HOURS = "12"
-    DIRECTORY = "parser"
+
     import travel_etl.prod.offers as offers
     import travel_etl.det.pivot as pivot
 
@@ -88,6 +82,17 @@ def etl_prod_offers(hours, directory, days_offer):
 
     prod_offers.load_table(**cfg)
 
+@task.external_python(task_id="etl_prod_offers", python=PATH_TO_PYTHON)
+def etl_prod_options(directory, Bucket):
+    import travel_etl.prod.offers as offers
+    import travel_etl.prod.options as options
+
+    prod_offers = offers.ProdOffers(directory)
+    prod_options = options.ProdOptions(directory, Bucket)
+    cfg = {
+        "source": prod_offers,
+    }
+    prod_options.load(**cfg)
 
 with DAG(
     dag_id="etl_create_det_offers",
@@ -106,7 +111,7 @@ with DAG(
     load_teztour_task = etl_det_teztour(HOURS, DIRECTORY)
     load_pivot_task = etl_det_pivot(HOURS, DIRECTORY)
     load_offers_task = etl_prod_offers(HOURS, DIRECTORY, DAYS_OFFER)
+    load_options_task = etl_prod_options(DIRECTORY, BUCKET)
 
     comb = task_start >> [load_travelata_task, load_teztour_task] >> load_pivot_task 
-    
-    comb >> load_offers_task
+    comb >> load_offers_task >> load_options_task
