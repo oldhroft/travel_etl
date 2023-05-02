@@ -45,6 +45,5 @@ class DetTravelata(YDBTable):
         Field("row_extracted_dttm_utc", "Datetime"),
         Field("created_dttm_utc", "Datetime")
     ]
-    primary_keys = [
-        "parsing_id", "row_extracted_dttm_utc", "row_id"
-    ]
+    
+    primary_keys = ["row_extracted_dttm_utc", "parsing_id", "row_id"]
