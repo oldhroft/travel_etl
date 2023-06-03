@@ -1,14 +1,11 @@
 from travel_etl.core.table import YDBTable
 from travel_etl.core.table import YDBField as Field
 
-class DetTravelata(YDBTable):
-    queries = [
-         "query.sql"
-    ]
 
-    params = [
-        "hours", "source"
-    ]
+class DetTravelata(YDBTable):
+    queries = ["query.sql"]
+
+    params = ["hours", "source"]
 
     fields = [
         Field("title", "Utf8"),
@@ -43,7 +40,7 @@ class DetTravelata(YDBTable):
         Field("parsing_id", "Utf8"),
         Field("row_id", "Utf8"),
         Field("row_extracted_dttm_utc", "Datetime"),
-        Field("created_dttm_utc", "Datetime")
+        Field("created_dttm_utc", "Datetime"),
     ]
-    
+
     primary_keys = ["row_extracted_dttm_utc", "parsing_id", "row_id"]

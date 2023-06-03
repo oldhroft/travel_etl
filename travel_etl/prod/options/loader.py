@@ -1,9 +1,8 @@
 from travel_etl.core.table import S3JsonFromYDB
 
+
 class ProdOptions(S3JsonFromYDB):
-    queries = [
-        "countries.sql", "num_nights.sql", "dates.sql"
-    ]
+    queries = ["countries.sql", "num_nights.sql", "dates.sql"]
 
     def transform(self):
         countries = list(map(lambda x: x["country_name"], self.data[0]))

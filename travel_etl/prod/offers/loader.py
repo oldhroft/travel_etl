@@ -30,12 +30,10 @@ class ProdOffers(YDBTable):
         Field("parsing_id", "Utf8"),
         Field("row_id", "Utf8"),
         Field("row_extracted_dttm_utc", "Datetime"),
-        Field("created_dttm_utc", "Datetime")
+        Field("created_dttm_utc", "Datetime"),
     ]
 
-    primary_keys = [
-        "website", "hotel_id", "start_date", "end_date"
-    ]
+    primary_keys = ["website", "hotel_id", "start_date", "end_date"]
 
     indexes = [
         Index("row_tm", ["row_extracted_dttm_utc"]),

@@ -1,14 +1,11 @@
 from travel_etl.core.table import YDBTable
 from travel_etl.core.table import YDBField as Field
 
-class DetTeztour(YDBTable):
-    queries = [
-         "query.sql"
-    ]
 
-    params = [
-        "hours", "source"
-    ]
+class DetTeztour(YDBTable):
+    queries = ["query.sql"]
+
+    params = ["hours", "source"]
 
     fields = [
         Field("hotel_id", "Int64"),

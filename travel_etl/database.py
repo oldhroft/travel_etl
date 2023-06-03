@@ -5,6 +5,7 @@ from travel_etl.prod.offers import ProdOffers
 
 import logging
 
+
 def create_database(base_dir: str) -> None:
     tables = []
     tables.append(DetTravelata(base_dir))
@@ -14,4 +15,3 @@ def create_database(base_dir: str) -> None:
     for table in tables:
         print(f"Creating table {table}")
         table.create_table()
-
