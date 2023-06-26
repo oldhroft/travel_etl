@@ -10,10 +10,10 @@ import logging
 
 def create_database(base_dir: str) -> None:
     tables = []
-    # tables.append(DetTravelata(base_dir))
-    # tables.append(DetTeztour(base_dir))
-    # tables.append(DetPivot(base_dir))
-    # tables.append(ProdOffers(base_dir))
+    tables.append(DetTravelata(base_dir))
+    tables.append(DetTeztour(base_dir))
+    tables.append(DetPivot(base_dir))
+    tables.append(ProdOffers(base_dir))
     tables.append(StatGlobalStat(base_dir))
     for table in tables:
         print(f"Creating table {table}")
