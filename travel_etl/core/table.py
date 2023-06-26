@@ -121,7 +121,7 @@ def create_table_description_ydb(
 
 def format_dttm_ydb(dttm: datetime.datetime) -> str:
     dttm_fmt = dttm.strftime("%Y-%m-%dT%H:%M:%SZ")
-    return f"cast({dttm_fmt} as datetime)"
+    return f"cast('{dttm_fmt}' as datetime)"
 
 
 class YDBTable(Table):
