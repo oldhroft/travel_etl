@@ -28,7 +28,7 @@ class DataObject:
             self.table_name = "/".join([directory_name, name])
 
         dttm = datetime.datetime.now()
-        self.dttm = self.dttm_formatter(dttm)
+        self.dttm = self.date_formatter(dttm)
 
     def __str__(self) -> str:
         return self.table_name
