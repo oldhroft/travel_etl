@@ -6,7 +6,12 @@ import logging
 import importlib
 import ydb
 
+import datetime
+
+
 class DataObject:
+    dttm_formatter = lambda x: datetime.datetime.strftime(x, "%Y-%m-%d %H:%M:%S")
+
     def __init__(
         self,
         directory_name,
@@ -20,8 +25,11 @@ class DataObject:
         else:
             self.table_name = "/".join([directory_name, name])
 
+        dttm = datetime.datetime.now()
+        self.dttm = self.dttm_formatter(dttm)
+
     def __str__(self) -> str:
-        return self.table_name 
+        return self.table_name
 
 
 class Table(DataObject):
@@ -52,7 +60,11 @@ class Table(DataObject):
             query_path = os.path.join(self.fpath, query)
             with open(query_path, "r", encoding="utf-8") as file:
                 query_text = file.read()
-            query_fmt = query_text % {"target": self.table_name, **kwargs}
+            query_fmt = query_text % {
+                "target": self.table_name,
+                "dttm": self.dttm,
+                **kwargs,
+            }
             logging.info(f"Executing query {query_fmt}")
             session.execute(query_fmt)
 
@@ -105,17 +117,24 @@ def create_table_description_ydb(
     return builder
 
 
+def format_dttm_ydb(dttm: datetime.datetime) -> str:
+    dttm_fmt = dttm.strftime("%Y-%m-%dT%H:%M:%SZ")
+    return f"cast({dttm_fmt} as datetime)"
+
+
 class YDBTable(Table):
     pool_cls = YDBPool
     fields = []
     primary_keys = []
     indexes = []
     ttl_settings = None
+    dttm_formatter = format_dttm_ydb
 
     def create_table_description(self):
         self.description = create_table_description_ydb(
             self.fields, self.primary_keys, self.indexes, ttl_settings=self.ttl_settings
         )
+
 
 class S3Json(DataObject):
     pool_cls = BasePool
@@ -146,11 +165,15 @@ class S3Json(DataObject):
             query_path = os.path.join(self.fpath, query)
             with open(query_path, "r", encoding="utf-8") as file:
                 query_text = file.read()
-            query_fmt = query_text % {"target": self.table_name, **kwargs}
+            query_fmt = query_text % {
+                "target": self.table_name,
+                "dttm": self.dttm,
+                **kwargs,
+            }
             logging.info(f"Executing query {query_fmt}")
             res = session.execute_load(query_fmt)
             self.data.append(res)
-        
+
         self.transform()
         s3 = self.s3_session()
 
@@ -159,3 +182,4 @@ class S3Json(DataObject):
 
 class S3JsonFromYDB(S3Json):
     pool_cls = YDBPool
+    dttm_formatter = format_dttm_ydb

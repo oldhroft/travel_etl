@@ -23,6 +23,8 @@ DAYS_OFFER = CONFIG["DAYS_OFFER"]
 DIRECTORY = CONFIG["DIRECTORY"]
 BUCKET = CONFIG["BUCKET"]
 SCHEDULE = CONFIG["SCHEDULE"]
+DAYS_STAT = CONFIG["DAYS_STAT"]
+SCHEDULE_STAT = CONFIG["SCHEDULE_STAT"]
 
 
 @task.external_python(task_id="etl_det_travelata", python=PATH_TO_PYTHON)
@@ -116,3 +118,24 @@ with DAG(
 
     comb = task_start >> [load_teztour_task] >> load_pivot_task
     comb >> load_offers_task >> load_options_task
+
+
+@task.external_python(task_id="etl_stat_global_stats", python=PATH_TO_PYTHON)
+def etl_stat_global_stats(directory, days):
+    import travel_etl.stat.global_stat as global_stat
+
+    stat_global_stat = global_stat.StatGlobalStat(directory)
+
+    cfg = {"source": "parser/parsing_stat_raws", "days": days}
+    stat_global_stat.load_table(**cfg)
+
+
+with DAG(
+    dag_id="etl_create_stat_global_stat",
+    catchup=False,
+    schedule_interval=SCHEDULE_STAT,
+    start_date=datetime.datetime(2023, 3, 1),
+) as dag:
+    task_start = BashOperator(task_id="start_task", bash_command="date", dag=dag)
+    load_global_stats_task = etl_stat_global_stats(DIRECTORY, DAYS_STAT)
+    task_start >> load_global_stats_task
