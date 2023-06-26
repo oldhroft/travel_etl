@@ -10,7 +10,9 @@ import datetime
 
 
 class DataObject:
-    dttm_formatter = lambda x: datetime.datetime.strftime(x, "%Y-%m-%d %H:%M:%S")
+
+    def date_formatter(self, dttm: datetime.datetime) -> str:
+        return datetime.datetime.strftime(dttm, "%Y-%m-%d %H:%M:%S")
 
     def __init__(
         self,
@@ -26,7 +28,6 @@ class DataObject:
             self.table_name = "/".join([directory_name, name])
 
         dttm = datetime.datetime.now()
-        print(dttm)
         self.dttm = self.dttm_formatter(dttm)
 
     def __str__(self) -> str:
@@ -129,7 +130,9 @@ class YDBTable(Table):
     primary_keys = []
     indexes = []
     ttl_settings = None
-    dttm_formatter = format_dttm_ydb
+    
+    def date_formatter(self, dttm: datetime) -> str:
+        return format_dttm_ydb(dttm)
 
     def create_table_description(self):
         self.description = create_table_description_ydb(
@@ -183,4 +186,6 @@ class S3Json(DataObject):
 
 class S3JsonFromYDB(S3Json):
     pool_cls = YDBPool
-    dttm_formatter = format_dttm_ydb
+
+    def date_formatter(self, dttm: datetime) -> str:
+        return format_dttm_ydb(dttm)
