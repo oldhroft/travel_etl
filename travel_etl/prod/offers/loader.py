@@ -20,6 +20,8 @@ class ProdOffers(YDBTable):
         Field("rating", "Double"),
         Field("num_nights", "Double"),
         Field("is_flight_included", "Bool"),
+        Field("room_type", "Utf8"),
+        Field("mealplan", "Utf8"),
         Field("beach_line", "Int64"),
         Field("num_stars", "Double"),
         Field("link", "Utf8"),
