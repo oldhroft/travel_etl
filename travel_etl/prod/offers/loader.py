@@ -5,7 +5,7 @@ from travel_etl.core.table import YDBIndex as Index
 
 class ProdOffers(YDBTable):
     queries = ["prepare.sql", "query.sql"]
-    params = ["hours", "days_offer", "source"]
+    params = ["days_offer", "source"]
 
     fields = [
         Field("hotel_id", "Int64"),
