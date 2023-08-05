@@ -154,7 +154,8 @@ with DAG(
     load_options_task = etl_prod_options(DIRECTORY, BUCKET)
 
     comb = task_start >> [load_teztour_task] >> load_pivot_task >> load_offers_task
-    comb >> [load_options_task, load_offers_first_time_task >> load_prod_offers_task]
+    comb >> load_options_task
+    comb >> load_offers_first_time_task >> load_prod_offers_task
 
 
 @task.external_python(task_id="etl_stat_global_stats", python=PATH_TO_PYTHON)
