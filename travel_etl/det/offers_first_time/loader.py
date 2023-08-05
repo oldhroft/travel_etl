@@ -5,7 +5,7 @@ from travel_etl.core.table import YDBIndex as Index
 
 class DetOffersFirstTime(YDBTable):
     queries = ["prepare.sql", "query.sql"]
-    params = ["hours", "days_offer", "source"]
+    params = ["days_offer", "source"]
 
     fields = [
         Field("hotel_id", "Int64"),
@@ -25,7 +25,14 @@ class DetOffersFirstTime(YDBTable):
         Field("created_dttm_utc", "Datetime"),
     ]
 
-    primary_keys = ["website", "hotel_id", "start_date", "end_date", "room_type", "mealplan"]
+    primary_keys = [
+        "website",
+        "hotel_id",
+        "start_date",
+        "end_date",
+        "room_type",
+        "mealplan",
+    ]
 
     indexes = [
         Index("row_tm", ["row_extracted_dttm_utc"]),

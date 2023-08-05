@@ -72,17 +72,52 @@ def etl_det_pivot(hours, directory):
     det_pivot.load_table(**cfg)
 
 
-@task.external_python(task_id="etl_prod_offers", python=PATH_TO_PYTHON)
-def etl_prod_offers(hours, directory, days_offer):
-    import travel_etl.prod.offers as offers
+@task.external_python(task_id="etl_det_offers", python=PATH_TO_PYTHON)
+def etl_det_offers(hours, directory, days_offer):
+    import travel_etl.det.offers as offers
     import travel_etl.det.pivot as pivot
 
     det_pivot = pivot.DetPivot(directory)
-    prod_offers = offers.ProdOffers(directory)
+    det_offers = offers.DetOffers(directory)
 
     cfg = {
         "source": det_pivot,
         "hours": hours,
+        "days_offer": days_offer,
+    }
+
+    det_offers.load_table(**cfg)
+
+
+@task.external_python(task_id="etl_det_offers_first_time", python=PATH_TO_PYTHON)
+def etl_det_offers_first_time(directory, days_offer):
+    import travel_etl.det.offers as offers
+    import travel_etl.det.offers_first_time as offers_first_time
+
+    det_offers = offers.DetOffers(directory)
+    det_offers_first_time = offers_first_time.DetOffersFirstTime(directory)
+
+    cfg = {
+        "source": det_offers,
+        "days_offer": days_offer,
+    }
+
+    det_offers_first_time.load_table(**cfg)
+
+
+@task.external_python(task_id="etl_prod_offers", python=PATH_TO_PYTHON)
+def etl_prod_offers(directory, days_offer):
+    import travel_etl.det.offers as offers
+    import travel_etl.det.offers_first_time as offers_first_time
+    import travel_etl.prod.offers as prod_offers
+
+    det_offers = offers.DetOffers(directory)
+    det_offers_first_time = offers_first_time.DetOffersFirstTime(directory)
+    prod_offers = prod_offers.ProdOffers(directory)
+
+    cfg = {
+        "source": det_offers,
+        "source_first_time": det_offers_first_time,
         "days_offer": days_offer,
     }
 
@@ -91,13 +126,13 @@ def etl_prod_offers(hours, directory, days_offer):
 
 @task.external_python(task_id="etl_prod_options", python=PATH_TO_PYTHON)
 def etl_prod_options(directory, Bucket):
-    import travel_etl.prod.offers as offers
+    import travel_etl.det.offers as offers
     import travel_etl.prod.options as options
 
-    prod_offers = offers.ProdOffers(directory)
+    det_offers = offers.DetOffers(directory)
     prod_options = options.ProdOptions(directory, Bucket)
     cfg = {
-        "source": prod_offers,
+        "source": det_offers,
     }
     prod_options.load(**cfg)
 
@@ -113,11 +148,13 @@ with DAG(
     # load_travelata_task = etl_det_travelata(HOURS, DIRECTORY)
     load_teztour_task = etl_det_teztour(HOURS, DIRECTORY)
     load_pivot_task = etl_det_pivot(HOURS, DIRECTORY)
-    load_offers_task = etl_prod_offers(HOURS, DIRECTORY, DAYS_OFFER)
+    load_offers_task = etl_det_offers(HOURS, DIRECTORY, DAYS_OFFER)
+    load_offers_first_time_task = etl_det_offers_first_time(DIRECTORY, DAYS_OFFER)
+    load_prod_offers_task = etl_prod_offers(DIRECTORY, DAYS_OFFER)
     load_options_task = etl_prod_options(DIRECTORY, BUCKET)
 
-    comb = task_start >> [load_teztour_task] >> load_pivot_task
-    comb >> load_offers_task >> load_options_task
+    comb = task_start >> [load_teztour_task] >> load_pivot_task >> load_offers_task
+    comb >> [load_options_task, load_offers_first_time_task >> load_prod_offers_task]
 
 
 @task.external_python(task_id="etl_stat_global_stats", python=PATH_TO_PYTHON)

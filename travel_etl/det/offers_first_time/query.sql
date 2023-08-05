@@ -15,7 +15,7 @@ SELECT src.hotel_id AS hotel_id,
     src.row_extracted_dttm_utc AS row_extracted_dttm_utc,
     src.created_dttm_utc AS created_dttm_utc
 FROM `%(source)s` as src
-LEFT JOIN `%(target)s` as tgt
+LEFT JOIN `%(source_first_time)s` as tgt
 ON src.hotel_id = tgt.hotel_id
     AND src.start_date = tgt.start_date
     AND src.end_date = tgt.end_date
