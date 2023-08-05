@@ -1,0 +1,1 @@
+from travel_etl.det.offers.loader import DetOffers

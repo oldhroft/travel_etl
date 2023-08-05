@@ -1,0 +1,1 @@
+from travel_etl.det.offers_first_time.loader import DetOffersFirstTime

@@ -3,7 +3,7 @@ from travel_etl.core.table import YDBField as Field
 from travel_etl.core.table import YDBIndex as Index
 
 
-class ProdOffers(YDBTable):
+class DetOffers(YDBTable):
     queries = ["prepare.sql", "query.sql"]
     params = ["hours", "days_offer", "source"]
 
@@ -24,7 +24,6 @@ class ProdOffers(YDBTable):
         Field("mealplan", "Utf8"),
         Field("beach_line", "Int64"),
         Field("num_stars", "Double"),
-        Field("price_change", "Double"),
         Field("link", "Utf8"),
         Field("website", "Utf8"),
         Field("offer_hash", "Utf8"),
