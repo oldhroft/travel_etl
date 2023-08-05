@@ -31,5 +31,5 @@ ON src.hotel_id = src_ft.hotel_id
     AND src.start_date = src_ft.start_date
     AND src.end_date = src_ft.end_date
     AND src.room_type = src_ft.room_type
-    AND src.mealplan = src_ft.room_type
+    AND src.mealplan = src_ft.mealplan
     AND src.website = src_ft.website;
