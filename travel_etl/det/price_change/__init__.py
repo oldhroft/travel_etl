@@ -1,0 +1,1 @@
+from travel_etl.det.price_change.loader import DetPriceChange
