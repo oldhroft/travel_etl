@@ -27,9 +27,9 @@ SELECT src.hotel_id AS hotel_id,
     src.created_dttm_utc AS created_dttm_utc
 FROM `%(source)s` src
 JOIN `%(source_first_time)s` as src_ft
-ON src.hotel_id = tgt.hotel_id
-    AND src.start_date = tgt.start_date
-    AND src.end_date = tgt.end_date
-    AND src.room_type = tgt.room_type
-    AND src.mealplan = tgt.room_type
-    AND src.website = tgt.website;
+ON src.hotel_id = src_ft.hotel_id
+    AND src.start_date = src_ft.start_date
+    AND src.end_date = src_ft.end_date
+    AND src.room_type = src_ft.room_type
+    AND src.mealplan = src_ft.room_type
+    AND src.website = src_ft.website;
