@@ -145,5 +145,60 @@ FROM  `%(source)s`
 
 В нем два параметра - target (обязательный), source - необязательный - имя таблицы-источника
 
+Далее табличку нужно добавить в файлик database.py - который выполняется в процессе деплоя
+и создать таск с заполнением таблицы в workflows/main.py
+
+В данном случае допусти, что таблица источник у нас /parser/det/pivot
+
+```python
+@task.external_python(task_id="etl_prod_offers_new", python=PATH_TO_PYTHON)
+def etl_det_pivot(days_offer, directory):
+
+    # Импортируем участвующие в процессе таблицы
+    import travel_etl.det.teztour as teztour
+    import travel_etl.prod.offers as offers_new
+
+    # Инициализируем эти таблицы в директории
+    det_teztour = teztour.DetTeztour(directory)
+    det_travelata = offers_new.ProdOffersNew(directory)
+
+    # Параметры, которые подставляются в скрипт
+    cfg = {
+        "source_teztour": det_teztour,
+        "days_offer": days_offer,
+    }
+
+    # Загружаем таблицу
+    det_pivot.load_table(**cfg)
+```
+
+И наконец добавляем загрузку таблицы в граф
+
+```python
+with DAG(
+    dag_id="etl_create_det_offers",
+    catchup=False,
+    schedule_interval=SCHEDULE,
+    start_date=datetime.datetime(2023, 3, 1),
+) as dag:
+    task_start = BashOperator(task_id="start_task", bash_command="date", dag=dag)
+
+    # load_travelata_task = etl_det_travelata(HOURS, DIRECTORY)
+    load_teztour_task = etl_det_teztour(HOURS, DIRECTORY)
+    load_pivot_task = etl_det_pivot(HOURS, DIRECTORY)
+    load_offers_task = etl_prod_offers(HOURS, DIRECTORY, DAYS_OFFER)
+    load_options_task = etl_prod_options(DIRECTORY, BUCKET)
+    load_offers_new_task = etl_prod_offers_new(HOURS, DIRECTORY, DAYS_OFFER)
+
+    comb = task_start >> [load_teztour_task] >> load_pivot_task
+    # Добавляем наш таск последним в цепочке
+    comb >> load_offers_task >> load_options_task >> load_offers_new_task
+```
+
+## TODO
+
+- Сейчас процесс загрузки таблицы = сама таблица (то есть он определяется в том же классе, что и таблица). Кажется, нужно разделить эти две вещи. Вопрос - как это организовать
+
+- К предыдущему пункту. Сейчас структура репозитория определяет путь до таблицы в YDB. Кажется это удобно только для YDB, и легко смигрировать всю структуру на другую базу будет тяжело. Подумать над тем, чтобы от этого отказаться
 
 
