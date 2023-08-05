@@ -10,3 +10,4 @@ __pycache__
 webswebserver_config.py
 logs
 *.sh
+.DS_Store

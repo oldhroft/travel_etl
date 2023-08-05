@@ -1,0 +1,7 @@
+HOURS: "12"
+DAYS_OFFER: "4"
+DIRECTORY: "parser"
+BUCKET: "parsing"
+SCHEDULE: "0 * * * *"
+DAYS_STAT: "2"
+SCHEDULE_STAT: "0 1 * * *"

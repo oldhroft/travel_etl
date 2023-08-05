@@ -6,14 +6,16 @@ from typing import Callable
 
 
 def create_execute_query(query: str) -> Callable:
+
+    TIMEOUT = 30
     # Create the transaction and execute query.
     def _execute_query(session: ydb.SessionPool):
         session.transaction().execute(
             query,
             commit_tx=True,
             settings=ydb.BaseRequestSettings()
-            .with_timeout(20)
-            .with_operation_timeout(19),
+            .with_timeout(TIMEOUT + 5)
+            .with_operation_timeout(TIMEOUT),
         )
 
     return _execute_query
@@ -51,6 +53,8 @@ class BasePool:
 
     def execute(self, query):...
 
+    def execute_load(self, query):...
+
     def path_exists(self, path):
         return False
     
@@ -86,3 +90,39 @@ class YDBPool(BasePool):
         except ydb.SchemeError as e:
             return False
         
+    def execute_load(self, query: str) -> dict:
+        results = self.table_session.transaction().execute(query, commit_tx=True)[0].rows
+        return list(map(dict, results))
+
+from typing import Union
+import json
+import boto3
+
+
+def load_to_s3(s3_client: boto3.Session.client, 
+               data: Union[str, dict, list], Key: str, Bucket: str) -> None:
+    
+    if isinstance(data, list) or isinstance(data, dict):
+        data = json.dumps(data)
+    elif isinstance(data, str):
+        pass
+    else:
+        raise ValueError("data should be str, list or dict")
+    s3_client.put_object(Body=data, Bucket=Bucket, Key=Key)
+
+class S3Client:
+
+    def __init__(self) -> None:
+        self.session = boto3.session.Session(
+            aws_access_key_id=os.environ["AWS_ACCESS_KEY_ID"],
+            aws_secret_access_key=os.environ["AWS_SECRET_ACCESS_KEY"],
+        )
+
+        self.s3_client = self.session.client(
+            service_name="s3",
+            endpoint_url=os.environ["AWS_ENDPOITNT_URL"],
+            region_name=os.environ["AWS_REGION_NAME"],
+        )
+    
+    def load_to_s3(self, data: Union[str, dict, list], Key: str, Bucket: str) -> None:
+        load_to_s3(self.s3_client, data, Key, Bucket)

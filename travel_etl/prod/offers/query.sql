@@ -10,6 +10,8 @@ SELECT hotel_id,
     end_date,
     rating,
     num_nights,
+    room_type,
+    mealplan,
     is_flight_included,
     beach_line,
     num_stars,
@@ -23,6 +25,6 @@ SELECT hotel_id,
     row_extracted_dttm_utc,
     created_dttm_utc
 FROM `%(source)s`
-WHERE  row_extracted_dttm_utc >= CurrentUtcDatetime()  - DateTime::IntervalFromHours(%(hours)s)
+WHERE  row_extracted_dttm_utc >= %(dttm)s  - DateTime::IntervalFromHours(%(hours)s)
     and hotel_id is not null
     and start_date >= CurrentUtcDate();

@@ -1,14 +1,11 @@
 from travel_etl.core.table import YDBTable
 from travel_etl.core.table import YDBField as Field
 
-class DetTeztour(YDBTable):
-    queries = [
-         "query.sql"
-    ]
 
-    params = [
-        "hours", "source"
-    ]
+class DetTeztour(YDBTable):
+    queries = ["query.sql"]
+
+    params = ["hours", "source"]
 
     fields = [
         Field("hotel_id", "Int64"),
@@ -46,6 +43,4 @@ class DetTeztour(YDBTable):
         Field("created_dttm_utc", "Datetime"),
     ]
 
-    primary_keys = [
-        "parsing_id", "row_extracted_dttm_utc", "row_id"
-    ]
+    primary_keys = ["row_extracted_dttm_utc", "parsing_id", "row_id"]

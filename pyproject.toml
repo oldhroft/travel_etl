@@ -10,6 +10,7 @@ python = "^3.8"
 ydb = {extras = ["yc"], version = "^2.13.2"}
 apache-airflow = "2.1.1"
 protobuf = "3.20.1"
+boto3 = "^1.26.114"
 
 
 [tool.poetry.group.dev.dependencies]

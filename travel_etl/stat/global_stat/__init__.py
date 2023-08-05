@@ -1,0 +1,1 @@
+from travel_etl.stat.global_stat.loader import StatGlobalStat

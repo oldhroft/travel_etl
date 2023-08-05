@@ -22,6 +22,8 @@ class DetPivot(YDBTable):
         Field("rating", "Double"),
         Field("num_nights", "Double"),
         Field("is_flight_included", "Bool"),
+        Field("room_type", "Utf8"),
+        Field("mealplan", "Utf8"),
         Field("beach_line", "Int64"),
         Field("num_stars", "Double"),
         Field("link", "Utf8"),
@@ -34,4 +36,4 @@ class DetPivot(YDBTable):
         Field("row_extracted_dttm_utc", "Datetime"),
         Field("created_dttm_utc", "Datetime"),
     ]
-    primary_keys = ["parsing_id", "row_extracted_dttm_utc", "row_id"]
+    primary_keys = ["row_extracted_dttm_utc", "parsing_id", "row_id"]

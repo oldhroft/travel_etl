@@ -20,6 +20,8 @@ class ProdOffers(YDBTable):
         Field("rating", "Double"),
         Field("num_nights", "Double"),
         Field("is_flight_included", "Bool"),
+        Field("room_type", "Utf8"),
+        Field("mealplan", "Utf8"),
         Field("beach_line", "Int64"),
         Field("num_stars", "Double"),
         Field("link", "Utf8"),
@@ -30,12 +32,10 @@ class ProdOffers(YDBTable):
         Field("parsing_id", "Utf8"),
         Field("row_id", "Utf8"),
         Field("row_extracted_dttm_utc", "Datetime"),
-        Field("created_dttm_utc", "Datetime")
+        Field("created_dttm_utc", "Datetime"),
     ]
 
-    primary_keys = [
-        "website", "hotel_id", "start_date", "end_date"
-    ]
+    primary_keys = ["website", "hotel_id", "start_date", "end_date", "room_type", "mealplan"]
 
     indexes = [
         Index("row_tm", ["row_extracted_dttm_utc"]),
