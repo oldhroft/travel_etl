@@ -25,6 +25,7 @@ BUCKET = CONFIG["BUCKET"]
 SCHEDULE = CONFIG["SCHEDULE"]
 DAYS_STAT = CONFIG["DAYS_STAT"]
 SCHEDULE_STAT = CONFIG["SCHEDULE_STAT"]
+DAYS_OFFER_FIRST_TIME = CONFIG["DAYS_OFFER_FIRST_TIME"]
 
 
 @task.external_python(task_id="etl_det_travelata", python=PATH_TO_PYTHON)
@@ -149,7 +150,7 @@ with DAG(
     load_teztour_task = etl_det_teztour(HOURS, DIRECTORY)
     load_pivot_task = etl_det_pivot(HOURS, DIRECTORY)
     load_offers_task = etl_det_offers(HOURS, DIRECTORY, DAYS_OFFER)
-    load_offers_first_time_task = etl_det_offers_first_time(DIRECTORY, DAYS_OFFER)
+    load_offers_first_time_task = etl_det_offers_first_time(DIRECTORY, DAYS_OFFER_FIRST_TIME)
     load_prod_offers_task = etl_prod_offers(DIRECTORY, DAYS_OFFER)
     load_options_task = etl_prod_options(DIRECTORY, BUCKET)
 

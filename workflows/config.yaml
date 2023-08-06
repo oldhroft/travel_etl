@@ -1,5 +1,6 @@
 HOURS: "12"
 DAYS_OFFER: "4"
+DAYS_OFFER_FIRST_TIME: "15"
 DIRECTORY: "parser"
 BUCKET: "parsing"
 SCHEDULE: "0 * * * *"
