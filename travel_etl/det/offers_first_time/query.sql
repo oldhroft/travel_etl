@@ -20,6 +20,6 @@ ON src.hotel_id = tgt.hotel_id
     AND src.start_date = tgt.start_date
     AND src.end_date = tgt.end_date
     AND src.room_type = tgt.room_type
-    AND src.mealplan = tgt.room_type
+    AND src.mealplan = tgt.mealplan
     AND src.website = tgt.website
 WHERE tgt.hotel_id IS NULL
