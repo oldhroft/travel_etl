@@ -182,10 +182,10 @@ with DAG(
 
 @task.external_python(task_id="etl_det_offers_first_time_init", python=PATH_TO_PYTHON)
 def etl_det_offers_first_time_init(directory, days_offer):
-    import travel_etl.det.offers as offers
+    import travel_etl.det.pivot as pivot
     import travel_etl.det.offers_first_time as offers_first_time
 
-    det_offers = offers.DetOffers(directory)
+    det_offers = pivot.DetPivot(directory)
     det_offers_first_time = offers_first_time.DetOffersFirstTimeInit(directory)
 
     cfg = {
