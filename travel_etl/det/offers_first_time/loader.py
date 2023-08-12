@@ -37,3 +37,7 @@ class DetOffersFirstTime(YDBTable):
     indexes = [
         Index("row_tm", ["row_extracted_dttm_utc"]),
     ]
+
+class DetOffersFirstTimeInit(DetOffersFirstTime):
+    queries = ["init.sql"]
+    params = ["days_init", "source"]

@@ -16,9 +16,9 @@ def create_database(base_dir: str) -> None:
     # tables.append(DetTravelata(base_dir))
     # tables.append(DetTeztour(base_dir))
     # tables.append(DetPivot(base_dir))
-    tables.append(DetOffers(base_dir))
-    tables.append(ProdOffers(base_dir))
-    tables.append(DetOffersFirstTime(base_dir))
+    # tables.append(DetOffers(base_dir))
+    # tables.append(ProdOffers(base_dir))
+    # tables.append(DetOffersFirstTime(base_dir))
     # tables.append(StatGlobalStat(base_dir))
     for table in tables:
         print(f"Creating table {table}")

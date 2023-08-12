@@ -178,3 +178,31 @@ with DAG(
     task_start = BashOperator(task_id="start_task", bash_command="date", dag=dag)
     load_global_stats_task = etl_stat_global_stats(DIRECTORY, DAYS_STAT)
     task_start >> load_global_stats_task
+
+
+@task.external_python(task_id="etl_det_offers_first_time_init", python=PATH_TO_PYTHON)
+def etl_det_offers_first_time_init(directory, days_offer):
+    import travel_etl.det.offers as offers
+    import travel_etl.det.offers_first_time as offers_first_time
+
+    det_offers = offers.DetOffers(directory)
+    det_offers_first_time = offers_first_time.DetOffersFirstTimeInit(directory)
+
+    cfg = {
+        "source": det_offers,
+        "days_init": days_offer,
+    }
+
+    det_offers_first_time.load_table(**cfg)
+
+with DAG(
+    dag_id="etl_init_det_offers_first_time",
+    catchup=False,
+    schedule_interval=None,
+    start_date=datetime.datetime(2023, 3, 1),
+) as dag:
+    task_start = BashOperator(task_id="start_task", bash_command="date", dag=dag)
+
+    load_offers_first_time_task_init = etl_det_offers_first_time_init(DIRECTORY, DAYS_OFFER_FIRST_TIME)
+
+    task_start >> load_offers_first_time_task_init
